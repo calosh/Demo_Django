@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form>{% csrf_token %}
+        <input type="number" value="{{valor}}" name="numero" id="numero">
+        <input type="button" value="Enviar" id="boton">
+    </form>
+    <p>Total: <span id="total">{{total}}</span></p>
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+    $.ajaxSetup({ 
+            beforeSend: function(xhr, settings) {
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie != '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            } 
+        });
+
+
+    $('#numero').on('change',function(){
+        var id = $(this).val();
+        console.log(id);
+        $.ajax({
+            data : {'numero':id},
+            url: '/suma/',
+            type: 'get',
+            success : function(data){
+                var object = JSON.parse(data);
+                console.log(object);
+                contents = $('#total');
+                contents.html(object.total);
+            }
+        }); 
+    });
+
+    $('#boton').click(function(){
+        var id = $("#numero").val();
+        console.log(id);
+        $.ajax({
+            data : {'numero':id},
+            url: '/suma/',
+            type: 'post',
+            success : function(data){
+                var object = JSON.parse(data);
+                console.log(object);
+                contents = $('#total');
+                contents.html(object.total);
+            }
+        }); 
+    });
+        
+</script>
+
+</html>
