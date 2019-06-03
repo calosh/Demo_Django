@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mapa</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.css" />
+
+   <script src="https://www.domoritz.de/leaflet-locatecontrol/src/L.Control.Locate.js"></script>
+
+
+</head>
+<body>
+
+    <style type="text/css">
+        html, body, #map{
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            }
+    </style>
+
+    <div>
+        <input type="text" id="latitude" value="0">
+        <input type="text" id="longitude" value="0">
+    </div>
+
+    <div id="map">
+        
+    </div>
+    
+</body>
+
+<script>
+
+    var centro = [-3.9976374, -79.2062975];
+    var map = L.map('map').setView(centro, 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    
+
+    
+
+    //var marker = L.marker([51.505, -0.09]).addTo(map);
+    
+    //L.marker([41.66, -4.71],{draggable: true}).addTo(map);
+    L.control.scale().addTo(map);
+    
+    /*
+    lc = L.control.locate({drawMarker:true}).addTo(map);
+    lc.start();
+    lc.stop();  
+    */
+    map.locate({enableHighAccuracy:true});
+    
+    map.on("locationfound", e => {
+        console.log(e);
+        coordenadas = [e.latlng.lat, e.latlng.lng]
+        map.panTo(new L.LatLng(coordenadas[0],coordenadas[1]));
+        marker = L.marker(coordenadas, {draggable: true}).addTo(map);
+        document.getElementById('latitude').value = coordenadas[0];
+        document.getElementById('longitude').value = coordenadas[1];
+        //L.map('map').setView(coordenadas, 16);
+        marker.on('dragend', function (e) {
+            document.getElementById('latitude').value = marker.getLatLng().lat;
+            document.getElementById('longitude').value = marker.getLatLng().lng;
+        
+        });
+    map.on('locationerror', e =>{
+        console.log(e);
+        marker = L.marker(centro, {draggable: true}).addTo(map);
+        document.getElementById('latitude').value = centro[1];
+        document.getElementById('longitude').value = centro[1];
+        
+    });
+    
+    });
+    
+</script>
+</html>

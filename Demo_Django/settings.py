@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'demo_ajax',
+    'demo_leafletjs',
 ]
 
 MIDDLEWARE = [
