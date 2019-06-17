@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    Facebook
+    {% if user.is_authenticated %}
+    <p>Hola {{user}}</p>
+    <a href="{% url 'logout' %}">Salir</a>
+    {% else %}
+    <a href="{% url 'social:begin' 'facebook' %}">Facebook login</a>
+    {% endif %}
+    
+</body>
+</html>

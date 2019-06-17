@@ -16,8 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from app import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('demo_ajax.urls')),
     path('', include('demo_leafletjs.urls')),
+
+    path('', include('social_django.urls', namespace='social')),
+
+    path('login/', views.login_facebook),
+    path('logout/', views.logout_view, name="logout"),
+    
+    path('', views.home),
 ]

@@ -38,8 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    "social_django",
     'demo_ajax',
     'demo_leafletjs',
+
+    "app",
+
+
 ]
 
 MIDDLEWARE = [
@@ -121,3 +126,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+AUTHENTICATION_BACKENDS = (
+    #'social_core.backends.open_id.OpenIdAuth',
+    #'social_core.backends.google.GoogleOpenId',
+    #'social_core.backends.google.GoogleOAuth2',
+    #'social_core.backends.google.GoogleOAuth',
+    #'social_core.backends.twitter.TwitterOAuth',
+    #'social_core.backends.yahoo.YahooOpenId',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/login"
+#SOCIAL_AUTH_USER_MODEL = "users.User"
+
+
+SOCIAL_AUTH_FACEBOOK_KEY = '1275751875935306'
+SOCIAL_AUTH_FACEBOOK_SECRET = '096bddee13186db35bf7f6e7c1fe640d'
