@@ -38,11 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    "sorl.thumbnail",
+    "mptt",
+
     "social_django",
     'demo_ajax',
     'demo_leafletjs',
 
     "app",
+
+    "demo_vue",
 
 
 ]
@@ -146,3 +151,7 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/login"
 
 SOCIAL_AUTH_FACEBOOK_KEY = '1275751875935306'
 SOCIAL_AUTH_FACEBOOK_SECRET = '096bddee13186db35bf7f6e7c1fe640d'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

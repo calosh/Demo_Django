@@ -16,7 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.conf import settings # new
+from django.conf.urls.static import static # new
+
 from app import views
+
+from demo_vue.views import index_vue, get_products
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +34,9 @@ urlpatterns = [
     path('logout/', views.logout_view, name="logout"),
     
     path('', views.home),
+    path("vue/index_vue", index_vue),
+    path("vue/get_products", get_products),
 ]
+if settings.DEBUG: # new
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
