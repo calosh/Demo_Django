@@ -5,33 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </head>
 <body>
 
-<div>
-    {% for categoria in categorias.get_ancestors %}
+<div class="container">
     <ul>
-        <li>{{categoria.nombre}} -- {{categoria.id}}
+        <li><span onclick="getTodo()">Todos</span></li>
+    {% for categoria in categorias.get_ancestors %}
+    
+        <li><span onClick="getCategoria('{{categoria.id}}')">{{categoria.nombre}} -- {{categoria.id}}</span>
             <ul>
-            
             {% for sub in categoria.get_children %}
-                <li>{{ sub.nombre }}</li>
+                <li><span onClick="getSubcategoria('{{sub.id}}')">{{ sub.nombre }} -- {{sub.id}}</span></li>
             {% endfor %}
-                
-                
             </ul>
         </li>
-    </ul>
     {% endfor %}
+    </ul>
 </div>
+<div class="container">
 
-<div id="app">
-    <div v-for="producto in productos.results">
-        <p>${producto.nombre}</p>
-        <div v-html="producto.imagen_src"></div>   
+    <div id="app">
+        <table class="table">
+            <hr>
+                <th>Inagen</th>
+                <th>Producto</th>
+                <th>Descripcion</th>
+            </hr>
+            <tr v-for="producto in productos.results">
+                <td v-html="producto.imagen_src"></td>
+                <td>${producto.nombre}</td>
+                <td>${producto.descripcion}</td>
+            </tr>
+            
+        </table>
+
+        <div class="paginator">
+            <a v-if="productos.has_previous" v-on:click="page--">Anterior</a>
+            
+            <a v-if="productos.has_next"  v-on:click="page++">Siguiente</a>
+        </div>
+        <p>Categoria actual: ${cat_sub}</p>
+        <p>Cat: ${categoria}, sub: ${subCategoria}</p>
+
     </div>
-    
-
 </div>
 
 </body>
@@ -46,22 +65,95 @@
             delimiters: ['${','}'],
             data:{
                 productos:[],
+                categoria: false,
+                subCategoria:false,
+                page:1,
+                history: {},
+                cat_sub:"todo",
+
             },
             mounted: function() {
                 this.get_products();
             },
             methods:{
                 get_products: function(){
-                    this.$http.get("/vue/get_products")
+
+                    var api_productos = "/vue/get_products";
+                    var api_url = api_productos;
+                    
+    
+                    if(this.categoria){
+                        api_url = api_productos + "?categoria="+this.cat_sub+"&page="+this.page;
+                        console.log("this.categoria");
+                    }
+                    if(this.subCategoria){
+                        api_url = api_productos + "?subCategoria="+this.cat_sub+"&page="+this.page;
+                        console.log("this.subCategoria");   
+                    }
+
+                    if(this.cat_sub=="todo"){
+                        api_url = api_url + "?page="+this.page;
+                        console.log("this.page");
+                    }
+
+                    this.$http.get(api_url)
                     .then((response) => {
                         this.productos = response.data;
+                        this.history[this.cat_sub+"_"+this.page] = this.productos;
                     })
                     .catch((err) => {
                         console.log(err);
                     })
+                },
+    
+                
+            },
+
+            watch:{
+                cat_sub: function(nuevo, antiguo){
+                    if(this.history[nuevo]){
+                        this.productos = this.history[nuevo];
+                        console.log("Guardando: "+nuevo);
+                    }else{
+                        this.get_products();
+                        console.log("Consultando: "+nuevo);
+                    }
+                    
+                },
+                page: function(nuevo, antiguo){
+                    if(this.history[this.cat_sub+"_"+nuevo]){
+                        this.productos = this.history[this.cat_sub+"_"+nuevo];
+                        console.log("Page-history: "+this.cat_sub+"_"+nuevo);
+                    }else{
+                        this.get_products();
+                        console.log("Page-get_products: "+this.cat_sub+"_"+nuevo);
+                    }
                 }
             }
-
         });
     </script>
+
+    <script>
+        function getCategoria(categoria){
+            console.log("Cambiando cat: " + categoria);
+            app.$data.categoria = true;
+            app.$data.cat_sub = categoria;
+            app.$data.subCategoria = false;
+        }
+        function getSubcategoria(subCategoria){
+            console.log("Cambiando sub: "+subCategoria);
+            app.$data.subCategoria = true;
+            app.$data.cat_sub = subCategoria;
+            app.$data.categoria = false;
+        }
+        function getTodo(){
+            app.$data.cat_sub = "todo";
+            app.$data.subCategoria = false;
+            app.$data.categoria = false;
+        }
+    </script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </html>
