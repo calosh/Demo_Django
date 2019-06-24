@@ -11,6 +11,10 @@
 <body>
 
 <div class="container">
+    <div>
+        <span>Buscar: </span><input type="text" id="buscar">
+        <input type=button value="Buscar" onclick="buscar()">
+    </div>
     <ul>
         <li><span onclick="getTodo()">Todos</span></li>
     {% for categoria in categorias.get_ancestors %}
@@ -43,9 +47,9 @@
         </table>
 
         <div class="paginator">
-            <a v-if="productos.has_previous" v-on:click="page--">Anterior</a>
+            <a v-if="productos.has_previous" v-on:click="page--; get_products_paginador()">Anterior</a>
             
-            <a v-if="productos.has_next"  v-on:click="page++">Siguiente</a>
+            <a v-if="productos.has_next"  v-on:click="page++; get_products_paginador()">Siguiente</a>
         </div>
         <p>Categoria actual: ${cat_sub}</p>
         <p>Cat: ${categoria}, sub: ${subCategoria}</p>
@@ -65,12 +69,10 @@
             delimiters: ['${','}'],
             data:{
                 productos:[],
-                categoria: false,
-                subCategoria:false,
                 page:1,
                 history: {},
                 cat_sub:"todo",
-
+                search:"todo",
             },
             mounted: function() {
                 this.get_products();
@@ -82,18 +84,22 @@
                     var api_url = api_productos;
                     
     
-                    if(this.categoria){
-                        api_url = api_productos + "?categoria="+this.cat_sub+"&page="+this.page;
+                    if(this.cat_sub=="cat"){
+                        api_url = api_productos + "?categoria="+this.search+"&page="+this.page;
                         console.log("this.categoria");
                     }
-                    if(this.subCategoria){
-                        api_url = api_productos + "?subCategoria="+this.cat_sub+"&page="+this.page;
+                    if(this.cat_sub=="sub"){
+                        api_url = api_productos + "?subCategoria="+this.search+"&page="+this.page;
                         console.log("this.subCategoria");   
                     }
 
                     if(this.cat_sub=="todo"){
                         api_url = api_url + "?page="+this.page;
                         console.log("this.page");
+                    }
+                    if(this.cat_sub=="buscar"){
+                        api_url = api_url + "?busqueda="+this.search+"&page="+this.page;
+                        console.log("this.buscar");
                     }
 
                     this.$http.get(api_url)
@@ -105,51 +111,58 @@
                         console.log(err);
                     })
                 },
+
+                get_products_paginador: function(){
+                    if(this.history[this.cat_sub+"_"+this.page]){
+                        this.productos = this.history[this.cat_sub+"_"+this.page];
+                        console.log("Page-history: "+this.cat_sub+"_"+this.page);
+                    }else{
+                        this.get_products();   
+                    }
+                }
     
                 
             },
 
+            
             watch:{
-                cat_sub: function(nuevo, antiguo){
-                    if(this.history[nuevo]){
-                        this.productos = this.history[nuevo];
-                        console.log("Guardando: "+nuevo);
+                search: function(nuevo, antiguo){
+                    if(this.history[nuevo+"_"+this.page]){
+                        this.productos = this.history[nuevo+"_"+this.page];
+                        console.log("Page-history: "+nuevo+"_"+this.page);
                     }else{
                         this.get_products();
-                        console.log("Consultando: "+nuevo);
+                        console.log("Page-get_products: "+nuevo+"_"+this.page);
                     }
-                    
                 },
-                page: function(nuevo, antiguo){
-                    if(this.history[this.cat_sub+"_"+nuevo]){
-                        this.productos = this.history[this.cat_sub+"_"+nuevo];
-                        console.log("Page-history: "+this.cat_sub+"_"+nuevo);
-                    }else{
-                        this.get_products();
-                        console.log("Page-get_products: "+this.cat_sub+"_"+nuevo);
-                    }
-                }
             }
+            
         });
     </script>
 
     <script>
         function getCategoria(categoria){
             console.log("Cambiando cat: " + categoria);
-            app.$data.categoria = true;
-            app.$data.cat_sub = categoria;
-            app.$data.subCategoria = false;
+            app.$data.search = categoria;
+            app.$data.cat_sub = "cat";
+            app.$data.page = 1;
         }
         function getSubcategoria(subCategoria){
             console.log("Cambiando sub: "+subCategoria);
-            app.$data.subCategoria = true;
-            app.$data.cat_sub = subCategoria;
-            app.$data.categoria = false;
+            app.$data.search = subCategoria;
+            app.$data.cat_sub = "sub";
+            app.$data.page = 1;
         }
         function getTodo(){
             app.$data.cat_sub = "todo";
-            app.$data.subCategoria = false;
-            app.$data.categoria = false;
+            app.$data.search = "todo";
+            app.$data.page = 1;
+        }
+        function buscar(){
+            var buscar = document.getElementById("buscar").value;
+            app.$data.cat_sub = "buscar";
+            app.$data.search = buscar;
+            app.$data.page = 1;
         }
     </script>
 
